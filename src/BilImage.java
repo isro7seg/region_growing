@@ -67,6 +67,7 @@ class BilImage extends JFrame implements ActionListener
     static JRadioButton ra2;
     static JRadioButton r3;
     static JRadioButton r4;
+    static JRadioButton rE;
     static JRadioButton r7;
     JRadioButton r5;
     JRadioButton r6;
@@ -119,6 +120,7 @@ JTextField tf3;
 	        r3=new JRadioButton("PCC",true);
 	        r3.setSelected(true);
 	        r4=new JRadioButton("CC");
+                rE=new JRadioButton("Euclidean");
 	        r7=new JRadioButton("Both");
 
 	}
@@ -130,16 +132,15 @@ JTextField tf3;
 		JMenu mnfile = new JMenu("File");
 		mnClass=new JMenu("Classifier");
 		sign =new JMenu("Signature files");
-                mnEnhance = new JMenu("Tools");
-		mnHelp = new JMenu("Help");
 		sign.setEnabled(false);
 		fuzzy=new JMenuItem("Table for fuzzy c mean");
-		
+		mnEnhance = new JMenu("Tools");
+		mnHelp = new JMenu("Help");
 		miOpen = new JMenuItem("Open");
 		miSave = new JMenuItem("Save");
 		miExit = new JMenuItem("Exit");
 		miAbout = new JMenuItem("About");
-		miContrast = new JMenuItem("Enhancement");
+		miContrast = new JMenuItem("Enhencement");
 		mifcc = new JMenuItem("FCC");
 		miRegion = new JMenuItem("Region Grow");
 
@@ -174,7 +175,7 @@ JTextField tf3;
 		mb.add(mnHelp);
 		setJMenuBar(mb);
 
-		con.setBackground(Color.CYAN);
+		con.setBackground(Color.PINK);
 		f = new Font("Palatino Linotype", Font.ITALIC, 21);
 
 		miOpen.addActionListener(this);
@@ -363,8 +364,10 @@ JTextField tf3;
         r3.setSize(50,30);
         r4.setLocation(200,230);
         r4.setSize(50,30);
-        r7.setLocation(250,230);
-        r7.setSize(50,30);
+        rE.setLocation(200,260);
+        rE.setSize(50,30);
+        r7.setLocation(250,195);
+        r7.setSize(100,90);
 
 
         b.setBounds(100,300,100, 40);//x axis, y axis, width, height
@@ -389,9 +392,11 @@ JTextField tf3;
         group1.add(ra2);
         Ofset.add( r3);
         Ofset.add( r4);
+        Ofset.add( rE);
         Ofset.add( r7);
         group2.add(r3);
         group2.add(r4);
+        group2.add(rE);
         group2.add(r7);
 
         Ofset.add(tf1);
@@ -7723,6 +7728,30 @@ public static double CosCorrelation(double[] xs, double[] ys) {
 }
 
 
+class Euclidean
+{
+
+
+public static double EuclideanDistance(double[] xs, double[] ys) {
+
+    double sxy = 0.0;
+
+    int n = xs.length;
+
+    for(int i = 0; i < n; ++i) {
+      double x = xs[i];
+      double y = ys[i];
+ 
+      sxy += (x-y)*(x-y);
+    }
+
+    double ans=Math.sqrt(sxy);
+ 
+    return ans;
+
+  }
+}
+
 class RegionGrow
 {
   public static int ycod;
@@ -7750,6 +7779,9 @@ static int samplecount;
 static private File ImageFile;
 static int count=0;
 static int count1=0;
+static int turn=1;
+static double max,min;
+
 
 public static void windowmaker(int xclickcor, int yclickcor, int width,int height)   //Function to calculate Window size
   {
@@ -7808,11 +7840,13 @@ public static void windowmaker(int xclickcor, int yclickcor, int width,int heigh
 		Table6.setSize(550,300);
 		Table6.setVisible(true);
 		System.out.println("Threshold: "+threshold);
-      for(xcod=xs;xcod<=xe;xcod++)
+                
+       for(xcod=xs;xcod<=xe;xcod++)
       {
                 for(ycod=ys;ycod<=ye;ycod++)
              {
-                    count1++;
+                    
+                     
                             try
                             {
 
@@ -7885,7 +7919,109 @@ public static void windowmaker(int xclickcor, int yclickcor, int width,int heigh
 					System.out.println(e);
 					e.printStackTrace();
 				}
+                   if(BilImage.rE.isSelected()==true)
+                {   //System.out.println("bhak");
+                     
+                    if(turn==1)                     
+                    {
+                        max=Euclidean.EuclideanDistance(DemoPanel.xratios,yratio);
+                        min=Euclidean.EuclideanDistance(DemoPanel.xratios,yratio);
+                        //System.out.println
+                    }
+                    
+                    else
+                    {
+                       if(Euclidean.EuclideanDistance(DemoPanel.xratios,yratio)>max)
+                           max=Euclidean.EuclideanDistance(DemoPanel.xratios,yratio);
+                        if(Euclidean.EuclideanDistance(DemoPanel.xratios,yratio)<min&&Euclidean.EuclideanDistance(DemoPanel.xratios,yratio)!=0)
+                          min=Euclidean.EuclideanDistance(DemoPanel.xratios,yratio);
+                    }
+                 turn++;   
+                }           
+                
+             }
+      }           
+      
+      System.out.println("max "+max+" min "+min);
+      for(xcod=xs;xcod<=xe;xcod++)
+      {
+                for(ycod=ys;ycod<=ye;ycod++)
+             {
+                    count1++;
+                    
+                            try
+                            {
 
+                            	FileInputStream fin_band=new FileInputStream(ImageFile);
+                            	 FileOutputStream fout_band[]=new FileOutputStream[band1];
+                            	 FileChannel fchan_in = fin_band.getChannel();
+                                 try
+                           	  {
+                           	 	 for(int k=0; k<band1; k++)
+                            	  	 {
+                            			fin_band = new FileInputStream("Data" + BilImage.name +  k);
+
+
+                            	     }
+                            	  }
+                            	  catch(Exception e)
+                            	  {
+                            		System.out.println("file Open Error in click : "+e);
+                            		e.printStackTrace();
+                            	  }
+					Data1 = new ReadImageData();
+					width1 = Data1.columns();
+					height1 = Data1.rows();
+					band1= Data1.bands();
+
+
+                                        	//System.out.println("Hell");
+					MappedByteBuffer mBuf;
+					int bvalues[] = new int[band1];
+					long lstart;
+					byte b4,b5;
+					int p1,p2;
+					int temp,tempCount;
+					int z,nob=1;
+                                     System.gc();
+                                     if(picture.shiftFlag==8)
+                                     {
+                     for(int ii=0; ii<band1; ii++)
+					{
+
+						lstart = (ycod * width1*band1) + (ii * width1)+ xcod;
+						mBuf=fchan_in.map(FileChannel.MapMode.READ_ONLY,lstart,nob);
+
+							b4 = mBuf.get();
+
+							bvalues[ii] = (b4<<24) >>> 24;
+					}
+                                     }
+                                     else
+                                     {
+                                    	 for(int ii=0; ii<band1; ii++)
+                     					{
+                                         	nob=2;
+                     						lstart = ((ycod * width1*band1) + (ii * width1)+ xcod)*2;
+                     						mBuf=fchan_in.map(FileChannel.MapMode.READ_ONLY,lstart,nob);
+
+                     							b4=b5 = mBuf.get();
+                     							p1 = b4<< 24;
+            									p2 = (b5 <<24 ) >>> 8;
+            									tempCount = p1 | p2;
+            									tempCount = tempCount >>> 16;
+                     							bvalues[ii] = tempCount;
+                     					}
+                                     }
+                        for( z=0;z<band1;z++)
+						yratio[z]=bvalues[z];
+ 				}
+				catch(Exception e)
+				{
+					System.out.println(e);
+					e.printStackTrace();
+				}
+                             
                             if(BilImage.r3.isSelected()==true)
                             {
                             if(Corelation.Correlation(DemoPanel.xratios,yratio)>=threshold)
@@ -7914,6 +8050,32 @@ public static void windowmaker(int xclickcor, int yclickcor, int width,int heigh
 
                     {
                     	count++;
+                    	{
+                    	  	int i,j;
+                    	  	int col=1;
+                    	    for(i=0;i<new ReadImageData().bands();i++)
+                    		{
+                    			imagetable6.model.setValueAt(yratio[i],imagetable6.row,col++);
+                    			j=(int)yratio[i]>>>8;
+                   	 	        fout.write(j);
+                    			fout.write((int)yratio[i]);
+                    		}
+                    		imagetable6.row++;
+
+                          }
+
+                   }
+                }
+                
+                 else if(BilImage.rE.isSelected()==true)
+                {   //System.out.println("bhak");
+                     
+                     
+                	if((Euclidean.EuclideanDistance(DemoPanel.xratios,yratio)-min)/(max-min)<=threshold)
+
+                    {
+                    	count++;
+                        
                     	{
                     	  	int i,j;
                     	  	int col=1;
